@@ -1,47 +1,44 @@
-# Imports
 import praw
 
 # Define Globals
 USER_AGENT = "python: mayr.redditCrawlerApp:v0.0.1"
-SUBREDDIT = "funny"
-POST_LIMIT = 5 # (Maximum is 100 per PRAW reddit API call.)
+DEFAULT_SUBREDDIT = "all"
+DEFAULT_POST_LIMIT = 5 # (Maximum is 100 per PRAW reddit API call.)
 
 # Initialise new PRAW instance
 r = praw.Reddit(user_agent=USER_AGENT)
 
-# Get all posts by subreddit
-# posts = r.get_subreddit(SUBREDDIT).get_hot(limit=POST_LIMIT)
-
-# Return these --> console.
-# If stickied, ignore post
-# print("---> Getting top 5 posts in subreddit: " + SUBREDDIT +"\n")
-# for post in posts:
-# 	if not post.stickied:
-# 		print(post.url)
-
 """
-	So we can get the top x posts ~ and can get URL attribute.
-	Now we need to go through SUBREDDIT and determine if the url is an IMG or a SELF post.
+A function that gets the top $x links from $subreddit.
+Removes stickies. Does not filter images from other links.
 """
-# print("---> Getting top 5 posts in subreddit: " + SUBREDDIT +"\n")
-# for post in posts:
-# 	if not post.stickied: # Probably not needed...
-# 		if not post.is_self: # Is a self post?? 
-# 			print(post.url) # woop
-
-# We should turn this into a function!
-
-"""
-Learn PEP function guideline...
-
-TODO: Filter images (png, jpg, bmp) from gif, gifv, non-image url etc
-"""
-def get_image_urls():
-	posts = r.get_subreddit(SUBREDDIT).get_hot(limit=POST_LIMIT)
+def get_image_urls(subreddit, post_limit):
+	posts = r.get_subreddit(subreddit).get_hot(limit=post_limit)
+	result = []
 
 	for post in posts:
-		if not post.stickied: # Probably not needed...
-			if not post.is_self: # Is a self post?? 
-				print(post.url) # woop
+		if not post.stickied: # Ignore stickied posts
+			result.append(post.url) # Add each post ---> Result.
+	return result
 
-get_image_urls()
+"""
+A function that takes a list and returns links ONLY containing valid images.
+Will *not* handle albums (e.g. Imgur albums)
+
+#WARN: only finds .jpg at the moment.
+"""
+def filter_links(input_list):
+	result = [] # New empty list 
+
+	for link in input_list:
+		if link.find("jpg") == -1:
+			pass
+		else:
+			result.append(link)
+
+	return result
+
+
+if __name__ == "__main__":
+	i = get_image_urls(DEFAULT_SUBREDDIT, DEFAULT_POST_LIMIT)
+	# print(i)
