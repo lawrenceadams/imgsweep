@@ -2,6 +2,8 @@ import praw
 import urllib
 import os
 import sys
+import argparse
+
 
 # Define Globals
 USER_AGENT = "python: mayr.redditCrawlerApp:v0.0.1"
@@ -9,7 +11,7 @@ DEFAULT_SUBREDDIT = "indianbabes"
 DEFAULT_POST_LIMIT = 20 # (Maximum is 100 per PRAW reddit API call.)
 DOWNLOADED_IMAGE_FOLDER = "download"
 
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 __author__ = "Lawrence Adams"
 
 # Initialise new PRAW instance
@@ -76,11 +78,11 @@ def _overwrite_console_output(output):
 	sys.stdout.flush()
 
 # -------- MAIN --------
-def main():
+def main(subredditToSweep, numberOfPosts):
 	print("ImgSweep " + __version__ + ", " + __author__ + "\n")
-	print("---> Getting top " + str(DEFAULT_POST_LIMIT) + " post(s) from subreddit " + DEFAULT_SUBREDDIT)
+	print("---> Getting top " + str(numberOfPosts) + " post(s) from subreddit " + subredditToSweep)
 
-	links = filter_urls(get_image_urls(DEFAULT_SUBREDDIT, DEFAULT_POST_LIMIT))
+	links = filter_urls(get_image_urls(subredditToSweep, numberOfPosts))
 
 	print("---> Got " + str(len(links)) + " links")
 
@@ -95,11 +97,24 @@ def main():
 
 
 if __name__ == '__main__':
-    try:
-        main()
-    except KeyboardInterrupt: # Handle Ctrl+C interrupts silently
-        print('[ERROR] Operation cancelled.')
-        try:
-            sys.exit(0)
-        except SystemExit:
-            os._exit(0)
+	parser = argparse.ArgumentParser()
+	parser.add_argument("subreddit", help="Subreddit to sweep.")
+	parser.add_argument("posts", help="Number of posts to check", type=int)
+	parser.add_argument("--silent", help="Disable output to console", action="store_true")
+
+	args = parser.parse_args()
+
+	targetSubreddit = args.subreddit
+	targetPosts = args.posts
+
+	if args.silent:
+		sys.stdout = open(os.devnull, 'w')
+
+	try:
+	    main(targetSubreddit, targetPosts)
+	except KeyboardInterrupt: # Handle Ctrl+C interrupts silently
+	    print('[ERROR] Operation cancelled.')
+	    try:
+	        sys.exit(0)
+	    except SystemExit:
+	        os._exit(0)
