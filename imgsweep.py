@@ -7,7 +7,7 @@ import argparse
 
 # Define Globals
 USER_AGENT = "python: mayr.redditCrawlerApp:v0.0.1"
-DEFAULT_SUBREDDIT = "indianbabes"
+DEFAULT_SUBREDDIT = "all"
 DEFAULT_POST_LIMIT = 20 # (Maximum is 100 per PRAW reddit API call.)
 DOWNLOADED_IMAGE_FOLDER = "download"
 
