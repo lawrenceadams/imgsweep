@@ -5,7 +5,7 @@ import sys
 
 # Define Globals
 USER_AGENT = "python: mayr.redditCrawlerApp:v0.0.1"
-DEFAULT_SUBREDDIT = "gentlemanboners"
+DEFAULT_SUBREDDIT = "indianbabes"
 DEFAULT_POST_LIMIT = 20 # (Maximum is 100 per PRAW reddit API call.)
 DOWNLOADED_IMAGE_FOLDER = "download"
 
@@ -51,6 +51,7 @@ def download_image(image_url):
 	filename = str(os.getcwd()) + str("\\download\\") + _get_filename_from_url(image_url)
 	urllib.request.urlretrieve(image_url, filename)
 
+
 """
 TODO
 
@@ -64,7 +65,7 @@ def _check_download_directory_present():
 	if os.path.exists(DOWNLOADED_IMAGE_FOLDER) and os.path.isdir(DOWNLOADED_IMAGE_FOLDER):
 		pass
 	else:
-		print("[WARN] No download directory detected, creating...")
+		print("---> [WARN] No download directory detected, creating...")
 		os.mkdir(DOWNLOADED_IMAGE_FOLDER)
 
 def _get_filename_from_url(dirtyUrl):
@@ -86,9 +87,11 @@ def main():
 	_check_download_directory_present()
 
 	for link in links:
-		_overwrite_console_output("---> Downloading: " + link)
-		# print("---> Downloading: " + link)
+		# _overwrite_console_output("---> Downloading: " + link)
+		print("---> Downloading: " + link)
 		download_image(link)
+
+	print("\n---> Downloaded " + str(len(links)) + " image(s)")
 
 
 if __name__ == '__main__':
