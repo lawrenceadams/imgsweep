@@ -1,12 +1,16 @@
 import praw
 import urllib
 import os
+import sys
 
 # Define Globals
 USER_AGENT = "python: mayr.redditCrawlerApp:v0.0.1"
-DEFAULT_SUBREDDIT = "all"
-DEFAULT_POST_LIMIT = 5 # (Maximum is 100 per PRAW reddit API call.)
+DEFAULT_SUBREDDIT = "gentlemanboners"
+DEFAULT_POST_LIMIT = 20 # (Maximum is 100 per PRAW reddit API call.)
 DOWNLOADED_IMAGE_FOLDER = "download"
+
+__version__ = "0.0.1"
+__author__ = "Lawrence Adams"
 
 # Initialise new PRAW instance
 r = praw.Reddit(user_agent=USER_AGENT)
@@ -30,7 +34,7 @@ Will *not* handle albums (e.g. Imgur albums)
 
 #WARN: only finds .jpg at the moment.
 """
-def filter_links(input_list):
+def filter_urls(input_list):
 	result = [] # New empty list 
 
 	for link in input_list:
@@ -44,8 +48,8 @@ def filter_links(input_list):
 A function that takes a single url as a string, and downloads the associated image.
 """
 def download_image(image_url):
-	filename = image_url.split('/')
-	urllib.request.urlretrieve(image_url, filename + ".jpg")
+	filename = str(os.getcwd()) + str("\\download\\") + _get_filename_from_url(image_url)
+	urllib.request.urlretrieve(image_url, filename)
 
 """
 TODO
@@ -55,14 +59,44 @@ Find if file is present. Go to lowest int count for name of file.
 """
 # def _file_present(directory):
 
-def _is_download_directory_present():
+# -------- PRIVATE FUNCTIONS --------
+def _check_download_directory_present():
 	if os.path.exists(DOWNLOADED_IMAGE_FOLDER) and os.path.isdir(DOWNLOADED_IMAGE_FOLDER):
 		pass
 	else:
-		os.makedir(DOWNLOADED_IMAGE_FOLDER)
+		print("[WARN] No download directory detected, creating...")
+		os.mkdir(DOWNLOADED_IMAGE_FOLDER)
+
+def _get_filename_from_url(dirtyUrl):
+	return str(dirtyUrl.split('/')[-1].split(".jpg")[0] + ".jpg")
+
+def _overwrite_console_output(output):
+	sys.stdout.write("\r" + output)
+	sys.stdout.flush()
+
+# -------- MAIN --------
+def main():
+	print("ImgSweep " + __version__ + ", " + __author__ + "\n")
+	print("---> Getting top " + str(DEFAULT_POST_LIMIT) + " post(s) from subreddit " + DEFAULT_SUBREDDIT)
+
+	links = filter_urls(get_image_urls(DEFAULT_SUBREDDIT, DEFAULT_POST_LIMIT))
+
+	print("---> Got " + str(len(links)) + " links")
+
+	_check_download_directory_present()
+
+	for link in links:
+		_overwrite_console_output("---> Downloading: " + link)
+		# print("---> Downloading: " + link)
+		download_image(link)
 
 
-
-if __name__ == "__main__":
-	i = get_image_urls(DEFAULT_SUBREDDIT, DEFAULT_POST_LIMIT)
-	# print(i)	
+if __name__ == '__main__':
+    try:
+        main()
+    except KeyboardInterrupt: # Handle Ctrl+C interrupts silently
+        print('[ERROR] Operation cancelled.')
+        try:
+            sys.exit(0)
+        except SystemExit:
+            os._exit(0)
