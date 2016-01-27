@@ -4,15 +4,14 @@ import os
 import sys
 import argparse
 
+__version__ = "0.0.2"
+__author__ = "Lawrence Adams"
 
 # Define Globals
-USER_AGENT = "python: mayr.redditCrawlerApp:v0.0.1"
+USER_AGENT = "python: mayr.redditCrawlerApp:v" + __version__
 DEFAULT_SUBREDDIT = "all"
 DEFAULT_POST_LIMIT = 20 # (Maximum is 100 per PRAW reddit API call.)
 DOWNLOADED_IMAGE_FOLDER = "download"
-
-__version__ = "0.0.2"
-__author__ = "Lawrence Adams"
 
 # Initialise new PRAW instance
 r = praw.Reddit(user_agent=USER_AGENT)
@@ -91,7 +90,13 @@ def main(subredditToSweep, numberOfPosts):
 	for link in links:
 		# _overwrite_console_output("---> Downloading: " + link)
 		print("---> Downloading: " + link)
-		download_image(link)
+		try:
+			download_image(link)
+		except:
+			print("    ****WARN****")
+			print("!!!> Failed to download: " + link)
+
+
 
 	print("\n---> Downloaded " + str(len(links)) + " image(s)")
 
