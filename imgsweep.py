@@ -81,7 +81,14 @@ def main(subredditToSweep, numberOfPosts):
 	print("ImgSweep " + __version__ + ", " + __author__ + "\n")
 	print("---> Getting top " + str(numberOfPosts) + " post(s) from subreddit " + subredditToSweep)
 
-	links = filter_urls(get_image_urls(subredditToSweep, numberOfPosts))
+	links = {}
+
+	try:
+		links = filter_urls(get_image_urls(subredditToSweep, numberOfPosts))
+	except Exception:
+		print("!!!> No internet connected.")
+		sys.exit()
+	
 
 	print("---> Got " + str(len(links)) + " links")
 
