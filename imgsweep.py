@@ -4,7 +4,7 @@ import os
 import sys
 import argparse
 
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 __author__ = "Lawrence Adams"
 
 # Define Globals
@@ -16,12 +16,20 @@ DOWNLOADED_IMAGE_FOLDER = "download"
 # Initialise new PRAW instance
 r = praw.Reddit(user_agent=USER_AGENT)
 
+# Initialise empty args string
+
 """
 A function that gets the top $x links from $subreddit.
 Removes stickies. Does not filter images from other links.
 """
 def get_image_urls(subreddit, post_limit):
-	posts = r.get_subreddit(subreddit).get_hot(limit=post_limit)
+
+	if args.top:
+		posts = r.get_subreddit(subreddit).get_top_from_all(limit=post_limit)
+	else:
+		posts = r.get_subreddit(subreddit).get_hot(limit=post_limit)
+	
+
 	result = []
 
 	for post in posts:
@@ -66,7 +74,7 @@ def _check_download_directory_present():
 	if os.path.exists(DOWNLOADED_IMAGE_FOLDER) and os.path.isdir(DOWNLOADED_IMAGE_FOLDER):
 		pass
 	else:
-		print("---> [WARN] No download directory detected, creating...")
+		print("iii> [WARN] No download directory detected, creating...")
 		os.mkdir(DOWNLOADED_IMAGE_FOLDER)
 
 def _get_filename_from_url(dirtyUrl):
@@ -85,8 +93,9 @@ def main(subredditToSweep, numberOfPosts):
 
 	try:
 		links = filter_urls(get_image_urls(subredditToSweep, numberOfPosts))
-	except Exception:
+	except Exception as e:
 		print("!!!> No internet connected.")
+		print(e)
 		sys.exit()
 	
 
@@ -113,6 +122,7 @@ if __name__ == '__main__':
 	parser.add_argument("subreddit", help="Subreddit to sweep.")
 	parser.add_argument("posts", help="Number of posts to check", type=int)
 	parser.add_argument("--silent", help="Disable output to console", action="store_true")
+	parser.add_argument("--top", help="Get top posts, not hot posts", action="store_true")
 
 	args = parser.parse_args()
 
